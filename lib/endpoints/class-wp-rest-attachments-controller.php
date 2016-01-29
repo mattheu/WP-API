@@ -214,6 +214,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		} else {
 
 			$sizes = array_merge( get_intermediate_image_sizes(), array( 'full' ) );
+			$sizes = array_diff( $sizes, array( 'post-thumbnail' ) );
 
 			foreach ( $sizes as $size ) {
 				$src = wp_get_attachment_image_src( $post->ID, $size );
