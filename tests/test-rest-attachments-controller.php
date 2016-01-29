@@ -223,6 +223,7 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		), $this->test_file );
 
 		add_image_size( 'rest-api-test', 119, 119, true );
+		add_image_size( 'rest-api-test-2', 640, 480, true );
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $this->test_file ) );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media/' . $attachment_id );
@@ -236,6 +237,9 @@ class WP_Test_REST_Attachments_Controller extends WP_Test_REST_Post_Type_Control
 		$this->assertEquals( 'image/jpeg', $data['media_details']['sizes']['rest-api-test']['mime_type'] );
 		$this->assertEquals( $original_image_src[0], $data['media_details']['sizes']['full']['source_url'] );
 		$this->assertEquals( 'image/jpeg', $data['media_details']['sizes']['full']['mime_type'] );
+
+		$this->assertArrayHasKey( 'rest-api-test-2', $data['media_details']['sizes'] );
+
 	}
 
 	public function test_get_item_sizes_with_no_url() {
