@@ -211,37 +211,23 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		// Ensure empty details is an empty object
 		if ( empty( $data['media_details'] ) ) {
 			$data['media_details'] = new stdClass;
-		} elseif ( ! empty( $data['media_details']['sizes'] ) ) {
-			$img_url_basename = wp_basename( $data['source_url'] );
-
-			foreach ( $data['media_details']['sizes'] as $size => &$size_data ) {
-
-				if ( isset( $size_data['mime-type'] ) ) {
-					$size_data['mime_type'] = $size_data['mime-type'];
-					unset( $size_data['mime-type'] );
-				}
-
-				// Use the same method image_downsize() does
-				$image_src = wp_get_attachment_image_src( $post->ID, $size );
-				if ( ! $image_src ) {
-					continue;
-				}
-
-				$size_data['source_url'] = $image_src[0];
-			}
-
-			$full_src = wp_get_attachment_image_src( $post->ID, 'full' );
-			if ( ! empty( $full_src ) ) {
-				$data['media_details']['sizes']['full'] = array(
-					'file'          => wp_basename( $full_src[0] ),
-					'width'         => $full_src[1],
-					'height'        => $full_src[2],
-					'mime_type'     => $post->post_mime_type,
-					'source_url'    => $full_src[0],
-					);
-			}
 		} else {
-			$data['media_details']['sizes'] = new stdClass;
+
+			$sizes = array_merge( get_intermediate_image_sizes(), array( 'full' ) );
+
+			foreach ( $sizes as $size ) {
+				$src = wp_get_attachment_image_src( $post->ID, $size );
+				if ( ! empty( $src ) ) {
+					$data['media_details']['sizes'][ $size ] = array(
+						'file'       => wp_basename( $src[0] ),
+						'width'      => $src[1],
+						'height'     => $src[2],
+						'mime_type'  => $post->post_mime_type,
+						'source_url' => $src[0]
+					);
+				}
+			}
+
 		}
 
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
